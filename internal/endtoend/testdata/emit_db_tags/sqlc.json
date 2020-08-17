@@ -5,8 +5,9 @@
       "name": "querytest",
       "path": "go",
       "schema": "schema.sql",
-      "queries": "query",
-      "engine": "mysql:beta"
+      "queries": "query.sql",
+      "engine": "mysql:beta",
+      "emit_db_tags": true
     }
   ]
 }

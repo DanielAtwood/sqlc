@@ -2,10 +2,10 @@
   "version": "1",
   "packages": [
     {
-      "name": "querytest",
       "path": "go",
-      "schema": "schema.sql",
-      "queries": "query",
+      "name": "querytest",
+      "schema": "query.sql",
+      "queries": "query.sql",
       "engine": "mysql:beta"
     }
   ]

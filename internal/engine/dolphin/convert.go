@@ -111,6 +111,9 @@ func (c *cc) convertCreateTableStmt(n *pcast.CreateTableStmt) ast.Node {
 		Name:        parseTableName(n.Table),
 		IfNotExists: n.IfNotExists,
 	}
+	if n.ReferTable != nil {
+		create.ReferTable = parseTableName(n.ReferTable)
+	}
 	for _, def := range n.Cols {
 		var vals *ast.List
 		if len(def.Tp.Elems) > 0 {
@@ -170,11 +173,22 @@ func (c *cc) convertDeleteStmt(n *pcast.DeleteStmt) *pg.DeleteStmt {
 }
 
 func (c *cc) convertDropTableStmt(n *pcast.DropTableStmt) ast.Node {
+	// TODO: Remove once views are supported.
+	if n.IsView {
+		return &ast.TODO{}
+	}
 	drop := &ast.DropTableStmt{IfExists: n.IfExists}
 	for _, name := range n.Tables {
 		drop.Tables = append(drop.Tables, parseTableName(name))
 	}
 	return drop
+}
+
+func (c *cc) convertRenameTableStmt(n *pcast.RenameTableStmt) ast.Node {
+	return &ast.RenameTableStmt{
+		Table:   parseTableName(n.OldTable),
+		NewName: &parseTableName(n.NewTable).Name,
+	}
 }
 
 func (c *cc) convertExistsSubqueryExpr(n *pcast.ExistsSubqueryExpr) *pg.SubLink {
@@ -398,6 +412,9 @@ func (c *cc) convert(node pcast.Node) ast.Node {
 
 	case *pcast.DropTableStmt:
 		return c.convertDropTableStmt(n)
+
+	case *pcast.RenameTableStmt:
+		return c.convertRenameTableStmt(n)
 
 	case *pcast.ExistsSubqueryExpr:
 		return c.convertExistsSubqueryExpr(n)
