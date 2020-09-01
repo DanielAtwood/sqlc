@@ -2,7 +2,10 @@
 
 package querytest
 
-import ()
+import (
+	"database/sql"
+)
 
 type Arena struct {
+	Name sql.NullString
 }

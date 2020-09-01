@@ -7,11 +7,29 @@ import (
 	"context"
 )
 
-const placeholder = `-- name: Placeholder :exec
-SELECT 1
+const listFoo = `-- name: ListFoo :many
+SELECT val FROM foo
 `
 
-func (q *Queries) Placeholder(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, placeholder)
-	return err
+func (q *Queries) ListFoo(ctx context.Context) ([]Foobar, error) {
+	rows, err := q.db.QueryContext(ctx, listFoo)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Foobar
+	for rows.Next() {
+		var val Foobar
+		if err := rows.Scan(&val); err != nil {
+			return nil, err
+		}
+		items = append(items, val)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
